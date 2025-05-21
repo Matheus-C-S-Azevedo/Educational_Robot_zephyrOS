@@ -1,0 +1,4 @@
+west:
+  command: /home/matheus-costa/zephyrproject/.venv/bin/west build -p always -b esp32_devkitc_wroom/esp32/procpu
+  topdir: /home/matheus-costa/zephyrproject
+  version: 1.3.0

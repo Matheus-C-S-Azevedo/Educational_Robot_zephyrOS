@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "wifi_connect.h": "c",
+        "dhcpv4_server.h": "c",
+        "net_if.h": "c",
+        "cstdint": "c"
+    }
+}
