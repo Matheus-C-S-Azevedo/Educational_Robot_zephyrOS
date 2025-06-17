@@ -11,18 +11,33 @@
 #include "wifi_connect.h"
 #include "config.h"
 #include "connection_manager.h"
+#include "mqtt_publish.h"
 
 LOG_MODULE_REGISTER(main_app, LOG_LEVEL_INF);
-// cria a thread para fazer as conexões wifi e mqtt
-//K_THREAD_DEFINE(connection_watchdog_id, 1024, connection_watchdog, NULL, NULL, NULL, 1, 0, 0);
+extern volatile bool mqtt_conectado;
 
-void main(void)
+
+int main(void)
 {
-    // inicia a thread de conexão Wi-Fi + MQTT
     connection_manager_start();
 
-    while (1) {
-        // aqui você pode eventualmente publicar mensagens MQTT
+    while (!mqtt_conectado) {
+        LOG_INF("Aguardando conexão MQTT...");
         k_sleep(K_SECONDS(1));
     }
+
+    while (1) {
+        k_sleep(K_SECONDS(10));
+
+        if (mqtt_conectado) {
+            int ret = mqtt_publish_data("zephyr/test", "olá do main!");
+            if (ret != 0) {
+                LOG_ERR("Falha ao publicar MQTT: %d", ret);
+            }
+        } else {
+            LOG_WRN("MQTT não conectado, pulando publicação.");
+        }
+    }
+
+    return 0;
 }

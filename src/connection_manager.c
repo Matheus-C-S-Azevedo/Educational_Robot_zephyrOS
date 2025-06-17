@@ -17,13 +17,56 @@ K_THREAD_STACK_DEFINE(mqtt_stack, MQTT_STACK_SIZE);
 static struct k_thread mqtt_thread;
 
 struct k_thread *mqtt_thread_id = NULL;
+extern struct mqtt_client mqtt_global_client;
 
 void mqtt_connection_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1); ARG_UNUSED(p2); ARG_UNUSED(p3);
     LOG_INF("Thread MQTT iniciada");
-    connect_to_mqtt();
+
+    int rc = connect_to_mqtt();
+
+    if (rc != 0) {
+        LOG_ERR("Falha na conexão inicial ao broker MQTT.");
+        mqtt_thread_id = NULL;
+        return;
+    }
+
+    // Aguarda o CONNACK sendo processado via mqtt_input()
+    int tentativas = 0;
+    while (!mqtt_conectado && tentativas++ < 30) {  // Espera até 3 segundos
+        mqtt_input(&mqtt_global_client);  // <- importante!
+        k_sleep(K_MSEC(100));
+    }
+
+    if (!mqtt_conectado) {
+        LOG_ERR("Timeout aguardando CONNACK do broker.");
+        mqtt_thread_id = NULL;
+        return;
+    }
+
+    // Loop principal
+    while (mqtt_conectado) {
+        rc = mqtt_input(&mqtt_global_client);
+        if (rc && rc != -EAGAIN) {
+            LOG_ERR("mqtt_input falhou: %d", rc);
+            break;
+        }
+
+        rc = mqtt_live(&mqtt_global_client);
+        if (rc && rc != -EAGAIN) {
+            LOG_ERR("mqtt_live falhou: %d", rc);
+            break;
+        }
+
+        k_sleep(K_MSEC(500));
+    }
+
+    LOG_WRN("Loop MQTT encerrado, resetando conexão...");
+    mqtt_conectado = false;
+    mqtt_thread_id = NULL;
 }
+
 
 void connection_watchdog(void *p1, void *p2, void *p3)
 {

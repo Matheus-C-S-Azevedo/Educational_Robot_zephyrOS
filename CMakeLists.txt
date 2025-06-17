@@ -11,4 +11,5 @@ target_sources(app PRIVATE
   src/wifi_connect.c
   src/connection_manager.c
   src/broker_connect.c
+  src/mqtt_publish.c
 )
