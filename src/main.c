@@ -14,14 +14,15 @@
 
 LOG_MODULE_REGISTER(main_app, LOG_LEVEL_INF);
 // cria a thread para fazer as conexões wifi e mqtt
-K_THREAD_DEFINE(connection_watchdog_id, 1024, connection_watchdog, NULL, NULL, NULL, 1, 0, 0);
+//K_THREAD_DEFINE(connection_watchdog_id, 1024, connection_watchdog, NULL, NULL, NULL, 1, 0, 0);
 
-int main(void)
+void main(void)
 {
-    k_sleep(K_SECONDS(1));
-    while(1){
+    // inicia a thread de conexão Wi-Fi + MQTT
+    connection_manager_start();
+
+    while (1) {
+        // aqui você pode eventualmente publicar mensagens MQTT
         k_sleep(K_SECONDS(1));
     }
-    
-    return 0;
 }

@@ -19,19 +19,30 @@ static void mqtt_evt_handler(struct mqtt_client *const client, const struct mqtt
         if (evt->result == 0) {
             LOG_INF("MQTT conectado com sucesso.");
             mqtt_conectado = true;
+            mqtt_thread_id = NULL;  // <- Permite reconexão futura caso caia
         } else {
             LOG_ERR("Falha na conexão MQTT: %d", evt->result);
             mqtt_conectado = false;
+            mqtt_thread_id = NULL;  // <- Permite nova tentativa
         }
         break;
+
     case MQTT_EVT_DISCONNECT:
         LOG_WRN("Desconectado do broker MQTT.");
         mqtt_conectado = false;
+        mqtt_thread_id = NULL;  // <- Permite nova tentativa
         break;
+
     default:
         break;
     }
 }
+
+
+#define MQTT_BUFFER_SIZE 512
+
+static uint8_t rx_buffer[MQTT_BUFFER_SIZE];
+static uint8_t tx_buffer[MQTT_BUFFER_SIZE];
 
 int connect_to_mqtt(void)
 {
@@ -49,6 +60,12 @@ int connect_to_mqtt(void)
     mqtt_global_client.client_id.size = strlen(MQTT_CLIENT_ID);
     mqtt_global_client.protocol_version = MQTT_VERSION_3_1_1;
     mqtt_global_client.transport.type = MQTT_TRANSPORT_NON_SECURE;
+
+    // ✅ Buffers obrigatórios para funcionamento correto
+    mqtt_global_client.rx_buf = rx_buffer;
+    mqtt_global_client.rx_buf_size = sizeof(rx_buffer);
+    mqtt_global_client.tx_buf = tx_buffer;
+    mqtt_global_client.tx_buf_size = sizeof(tx_buffer);
 
     int ret = mqtt_connect(&mqtt_global_client);
     if (ret != 0) {
