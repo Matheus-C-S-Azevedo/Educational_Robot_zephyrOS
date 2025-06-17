@@ -5,6 +5,7 @@
 #include <zephyr/logging/log.h>
 #include <string.h>
 #include "wifi_connect.h"
+#include "config.h"
 
 LOG_MODULE_REGISTER(wifi_connect, LOG_LEVEL_INF);
 
@@ -13,28 +14,29 @@ LOG_MODULE_REGISTER(wifi_connect, LOG_LEVEL_INF);
 	(NET_EVENT_WIFI_CONNECT_RESULT | NET_EVENT_WIFI_DISCONNECT_RESULT)
 
 /* STA Mode Configuration */
-#define WIFI_SSID "LAB_I4.0"   /* Replace `SSID` with WiFi ssid. */
-#define WIFI_PSK "L4B0@2025#"
-
 static struct net_if *sta_iface;
 static struct wifi_connect_req_params sta_config; // cria uma dado com a estrutura wifi_ conec... que vai ser usado em connect_to_wifi()
 static struct net_mgmt_event_callback cb;
+
+volatile bool wifi_conectado = false;
 
 // Este método só é utilizado para gerar logs, em uma versão mais enxuta, poderia ser removida (pode ser utilizada para fazer reconexão)
 static void wifi_event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct net_if *iface)
 {
 	switch (mgmt_event) {
-	case NET_EVENT_WIFI_CONNECT_RESULT: {
-		LOG_INF("Connected to %s", WIFI_SSID);
-		break;
-	}
-	case NET_EVENT_WIFI_DISCONNECT_RESULT: {
-		LOG_INF("Disconnected from %s", WIFI_SSID);
-		break;
-	}
+		case NET_EVENT_WIFI_CONNECT_RESULT: {
+			wifi_conectado = true;
+			LOG_INF("Connected to %s", WIFI_SSID);
+			break;
+		}
+		case NET_EVENT_WIFI_DISCONNECT_RESULT: {
+			wifi_conectado = false;
+			LOG_WRN("Disconnected from %s", WIFI_SSID);
+			break;
+		}
 
-	default:
-		break;
+		default:
+			break;
 	}
 }
 

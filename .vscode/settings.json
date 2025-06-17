@@ -4,6 +4,7 @@
         "wifi_connect.h": "c",
         "dhcpv4_server.h": "c",
         "net_if.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "string.h": "c"
     }
 }
