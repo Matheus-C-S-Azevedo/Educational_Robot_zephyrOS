@@ -3,7 +3,7 @@
 
 #include <zephyr/net/mqtt.h>
 
-int connect_to_mqtt(struct mqtt_client *client, struct sockaddr_storage *broker);
+int connect_to_mqtt();
 extern volatile bool mqtt_conectado;
 
 #endif // BROKER_CONNECT_H
