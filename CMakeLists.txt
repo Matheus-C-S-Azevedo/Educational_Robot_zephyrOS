@@ -5,5 +5,10 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ldr_mqtt)
 
 target_include_directories(app PRIVATE include)
-target_sources(app PRIVATE src/main.c src/wifi_connect.c src/connection_manager.c)
 
+target_sources(app PRIVATE
+  src/main.c
+  src/wifi_connect.c
+  src/connection_manager.c
+  src/broker_connect.c
+)
