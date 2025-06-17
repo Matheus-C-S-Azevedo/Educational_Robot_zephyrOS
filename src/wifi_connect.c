@@ -10,8 +10,9 @@
 LOG_MODULE_REGISTER(wifi_connect, LOG_LEVEL_INF);
 
 // --- WI FI ---
-#define NET_EVENT_WIFI_MASK                                                                        \
-	(NET_EVENT_WIFI_CONNECT_RESULT | NET_EVENT_WIFI_DISCONNECT_RESULT)
+#define WIFI_EVENTS \
+    (NET_EVENT_WIFI_CONNECT_RESULT | NET_EVENT_WIFI_DISCONNECT_RESULT | NET_EVENT_IPV4_ADDR_ADD)
+
 
 /* STA Mode Configuration */
 static struct net_if *sta_iface;
@@ -21,23 +22,28 @@ static struct net_mgmt_event_callback cb;
 volatile bool wifi_conectado = false;
 
 // Este método só é utilizado para gerar logs, em uma versão mais enxuta, poderia ser removida (pode ser utilizada para fazer reconexão)
-static void wifi_event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct net_if *iface)
+static void wifi_event_handler(struct net_mgmt_event_callback *cb,
+                               uint32_t mgmt_event,
+                               struct net_if *iface)
 {
-	switch (mgmt_event) {
-		case NET_EVENT_WIFI_CONNECT_RESULT: {
-			wifi_conectado = true;
-			LOG_INF("Connected to %s", WIFI_SSID);
-			break;
-		}
-		case NET_EVENT_WIFI_DISCONNECT_RESULT: {
-			wifi_conectado = false;
-			LOG_WRN("Disconnected from %s", WIFI_SSID);
-			break;
-		}
+    switch (mgmt_event) {
+        case NET_EVENT_WIFI_CONNECT_RESULT:
+            LOG_INF("Wi-Fi conectado, aguardando IP...");
+            break;
 
-		default:
-			break;
-	}
+        case NET_EVENT_WIFI_DISCONNECT_RESULT:
+            wifi_conectado = false;
+            LOG_WRN("Wi-Fi desconectado de %s", WIFI_SSID);
+            break;
+
+        case NET_EVENT_IPV4_ADDR_ADD:
+            wifi_conectado = true;
+            LOG_INF("Endereço IP atribuído, conexão de rede completa.");
+            break;
+
+        default:
+            break;
+    }
 }
 
 int connect_to_wifi(void)
@@ -50,7 +56,7 @@ int connect_to_wifi(void)
 		return -EIO;
 	}
 
-    net_mgmt_init_event_callback(&cb, wifi_event_handler, NET_EVENT_WIFI_MASK);
+    net_mgmt_init_event_callback(&cb, wifi_event_handler, WIFI_EVENTS);
 	net_mgmt_add_event_callback(&cb);
 
 	sta_config.ssid = (const uint8_t *)WIFI_SSID;

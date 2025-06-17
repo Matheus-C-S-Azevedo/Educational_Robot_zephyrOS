@@ -18,6 +18,8 @@ void connection_watchdog(void *p1, void *p2, void *p3)
             LOG_INF("Tentando se reconectar ao wifi ...");
             connect_to_wifi();
         } else if (!mqtt_conectado){
+            LOG_INF("Wi-Fi conectado, esperando stack estabilizar...");
+            k_sleep(K_SECONDS(3));
             LOG_INF("Tentando se reconectar ao mqtt");
             connect_to_mqtt();
         }
