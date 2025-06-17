@@ -1,0 +1,73 @@
+#include <zephyr/dt-bindings/pwm/pwm.h>
+
+/ {
+    aliases {
+        led0 = &user_led;
+        sw0 = &user_button;
+        servo1 = &servo1;
+        servo2 = &servo2;
+    };
+
+    leds {
+        compatible = "gpio-leds";
+        user_led: led_0 {
+            gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    buttons {
+        compatible = "gpio-keys";
+        user_button: button_0 {
+            gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    servo1: servo1 {
+        compatible = "pwm-servo";
+        pwms = <&ledc0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(1000)>;
+        max-pulse = <PWM_USEC(2000)>;
+    };
+
+    servo2: servo2 {
+        compatible = "pwm-servo";
+        pwms = <&ledc0 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(1000)>;
+        max-pulse = <PWM_USEC(2000)>;
+    };
+};
+
+&pinctrl {
+    ledc0_default: ledc0_default {
+        group1 {
+            pinmux = <LEDC_CH0_GPIO25>;
+            output-enable;
+        };
+        group2 {
+            pinmux = <LEDC_CH1_GPIO26>;
+            output-enable;
+        };
+    };
+};
+
+&ledc0 {
+    pinctrl-0 = <&ledc0_default>;
+    pinctrl-names = "default";
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel0@0 {
+        reg = <0x0>;
+        timer = <0>;
+    };
+
+    channel1@1 {
+        reg = <0x1>;
+        timer = <0>;
+    };
+};
+
+&wifi {
+    status = "okay";
+};
