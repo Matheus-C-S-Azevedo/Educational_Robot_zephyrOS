@@ -12,4 +12,5 @@ target_sources(app PRIVATE
   src/connection_manager.c
   src/broker_connect.c
   src/mqtt_publish.c
+  src/servo_control.c
 )

@@ -26,6 +26,9 @@ LOG_MODULE_REGISTER(servo_control, LOG_LEVEL_INF);
 #error "Alias servo4 não definido"
 #endif
 
+uint32_t servo1_posicao = 0;
+
+
 enum direction {
     UP,
     DOWN,
@@ -76,6 +79,10 @@ static void servo_motor(void *p1, void *p2, void *p3)
 
     while (1) {
         pwm_set_pulse_dt(&ctx->pwm, ctx->pulse_width);
+        if (ctx == &servos[0]) {
+            servo1_posicao = ctx->pulse_width;
+        }
+
         LOG_INF("Servo ajustado para %d us", ctx->pulse_width);
 
         if (ctx->dir == UP) {
@@ -102,3 +109,13 @@ K_THREAD_DEFINE(servo1_thread_id, STACKSIZE, servo_motor, &servos[0], NULL, NULL
 K_THREAD_DEFINE(servo2_thread_id, STACKSIZE, servo_motor, &servos[1], NULL, NULL, PRIORITY, 0, 0);
 K_THREAD_DEFINE(servo3_thread_id, STACKSIZE, servo_motor, &servos[2], NULL, NULL, PRIORITY, 0, 0);
 K_THREAD_DEFINE(servo4_thread_id, STACKSIZE, servo_motor, &servos[3], NULL, NULL, PRIORITY, 0, 0);
+
+void servo_control_init(void) {
+    for (int i = 0; i < NUM_SERVOS; i++) {
+        if (!device_is_ready(servos[i].pwm.dev)) {
+            LOG_ERR("PWM %d não está pronto!", i);
+        } else {
+            pwm_set_pulse_dt(&servos[i].pwm, servos[i].pulse_width);
+        }
+    }
+}
