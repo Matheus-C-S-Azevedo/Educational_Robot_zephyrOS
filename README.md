@@ -1,102 +1,73 @@
-Educational Robot - Zephyr RTOS 🤖
+# Educational Robot with Zephyr OS (ESP32)
 
-Este repositório contém o firmware para um robô educativo desenvolvido utilizando o Zephyr Real-Time Operating System (RTOS). O projeto demonstra a implementação de controlo de movimento, leitura de sensores e gestão de tarefas em tempo real para sistemas embebidos.
+[![Zephyr](https://img.shields.io/badge/Zephyr-RTOS-6DB33F?logo=zephyrproject&logoColor=white)](#)
+[![Platform](https://img.shields.io/badge/Platform-ESP32-E7352C?logo=espressif&logoColor=white)](#)
+[![Language](https://img.shields.io/badge/Language-C-00599C?logo=c&logoColor=white)](#)
+[![Build System](https://img.shields.io/badge/Build-CMake%20%2B%20west-064F8C)](#)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-🚀 Visão Geral
+Firmware educacional para robótica embarcada com **ESP32** e **Zephyr RTOS**, organizado para aprendizado progressivo de arquitetura de software embarcado, integração de periféricos e boas práticas de desenvolvimento.
 
-O projeto utiliza as capacidades de multithreading e a abstração de hardware do Zephyr para controlar um robô móvel. A arquitetura foi pensada para ser modular, facilitando a adição de novos sensores ou comportamentos (como seguimento de linha ou desvio de obstáculos).
+---
 
-Principais Funcionalidades
+## Table of Contents
 
-Controlo de Motores: Implementação de sinais PWM para ajuste de velocidade e direção.
+- [Overview](#overview)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- 
+---
 
-Integração de Sensores: Leitura de sensores ultrassónicos (HC-SR04) e infravermelhos.
+## Overview
 
-Multithreading: Gestão de threads independentes para a lógica de controlo e para a monitorização de segurança.
+Este projeto implementa uma base de **robô educacional** sobre Zephyr, com foco em:
 
-Portabilidade: Utilização de Devicetree Overlays para fácil adaptação a diferentes placas (ESP32, STM32, etc.).
-
-🛠️ Tecnologias e Ferramentas
-
-Linguagem: C
-
-RTOS: Zephyr Project
-
-Build System: CMake & West
-
-Hardware Alvo: ESP32 (configurável via Devicetree)
-
-📋 Pré-requisitos
-
-Para compilar este projeto, é necessário configurar o ambiente de desenvolvimento do Zephyr:
-
-Instale o Zephyr SDK.
-
-Instale a ferramenta West.
-
-Configure as dependências do sistema conforme a documentação oficial do Zephyr.
-
-🔧 Como Compilar e Carregar
-
-1. Clonar o Repositório
-
-git clone [https://github.com/Matheus-C-S-Azevedo/Educational_Robot_zephyrOS.git](https://github.com/Matheus-C-S-Azevedo/Educational_Robot_zephyrOS.git)
-cd Educational_Robot_zephyrOS
+- Fundamentos de **RTOS** (threads, timers, sincronização)
+- Organização modular do firmware
+- Integração incremental de sensores, atuadores e conectividade
 
 
-2. Inicializar o Workspace
+## Project Structure
 
-Se estiver a usar este repositório como um módulo isolado:
+```text
+Educational_Robot_zephyrOS/
+├── boards/                # Board support e ajustes específicos de hardware
+├── docs/                  # Documentação técnica e guias
+├── dts/
+│   └── bindings/          # Bindings DeviceTree customizados
+├── include/               # Headers públicos do projeto
+├── src/                   # Código-fonte principal
+├── CMakeLists.txt         # Configuração de build (CMake)
+├── prj.conf               # Opções Kconfig do Zephyr
+└── sample.yaml            # Metadados de sample/testes (Zephyr/Twister)
+```
 
-west init -l .
-west update
+## architecture
+
+```text
++--------------------------------------------------+
+|                   Application                    |
+|  (robot behavior / state machine / control loop) |
++-------------------------+------------------------+
+                          |
+                          v
++--------------------------------------------------+
+|                 Service Layer                    |
+|    motion control | sensing | telemetry | power  |
++-------------------------+------------------------+
+                          |
+                          v
++--------------------------------------------------+
+|              Hardware Abstraction                |
+|   GPIO / PWM / I2C / SPI / ADC / UART / BLE     |
++-------------------------+------------------------+
+                          |
+                          v
++--------------------------------------------------+
+|                 Zephyr Kernel                    |
+| threads | timers | queues | semaphores | logging |
++--------------------------------------------------+
+```
 
 
-3. Compilar para a sua Placa
 
-Por exemplo, para a ESP32 DevKitC V4:
-
-west build -b esp32_devkitc_v4
-
-
-4. Flash (Carregar no Hardware)
-
-west flash
-
-
-📂 Estrutura do Projeto
-
-├── src/
-│   └── main.c           # Lógica principal do firmware
-├── boards/
-│   └── esp32.overlay    # Definição de pinos (PWM, Sensores)
-├── prj.conf             # Configurações do Kernel (Kconfig)
-├── CMakeLists.txt       # Script de construção do projeto
-└── README.md            # Documentação
-
-
-⚙️ Configurações (Kconfig)
-
-As funcionalidades do kernel utilizadas estão definidas no ficheiro prj.conf. Algumas das flags essenciais incluem:
-
-CONFIG_GPIO=y - Ativa suporte a entrada/saída digital.
-
-CONFIG_PWM=y - Ativa controlo de motores.
-
-CONFIG_SENSOR=y - Ativa a stack de sensores.
-
-🤝 Contribuições
-
-Sinta-se à vontade para abrir uma Issue ou submeter um Pull Request para melhorias:
-
-Faça um Fork do projeto.
-
-Crie uma Branch (git checkout -b feature/MinhaMelhoria).
-
-Faça Commit das alterações.
-
-Faça Push para a branch.
-
-Abra um Pull Request.
-
-Desenvolvido por Matheus Azevedo
